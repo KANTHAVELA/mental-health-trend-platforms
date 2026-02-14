@@ -1,0 +1,27 @@
+{
+    "name": "mental-health-analytics-platform",
+    "version": "1.0.0",
+    "description": "Root package for Mental Health Trend Analytics Platform",
+    "private": true,
+    "workspaces": [
+        "client",
+        "server"
+    ],
+    "scripts": {
+        "install:all": "npm install --workspaces",
+        "dev:client": "npm run dev --workspace=client",
+        "dev:server": "npm run dev --workspace=server",
+        "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+        "start": "npm run dev"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2",
+        "nodemon": "^3.1.11"
+    },
+    "dependencies": {
+        "cors": "^2.8.6",
+        "dotenv": "^17.3.1",
+        "express": "^5.2.1",
+        "mongoose": "^9.2.1"
+    }
+}

@@ -1,0 +1,251 @@
+{
+  "info": {
+    "name": "MindFlow API Collection",
+    "_postman_id": "d9e80c0d-0f72-4a35-bd97-e6fd4c8d6300",
+    "description": "Postman collection for the Mental Health Trend Analytics Platform APIs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "patientId", "value": "" },
+    { "key": "noteId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"patient_demo\",\n  \"email\": \"patient_demo@test.com\",\n  \"password\": \"password123\",\n  \"role\": \"patient\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo@example.com\",\n  \"password\": \"hashedpassword123\",\n  \"role\": \"patient\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "RBAC",
+      "item": [
+        {
+          "name": "Patient Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/patient/me"
+          }
+        },
+        {
+          "name": "Provider Analytics Access",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/provider/dashboard-analytics"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Overview",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/analytics/overview"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Entries",
+      "item": [
+        {
+          "name": "Create Entry",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emotion\": 7,\n  \"keywords\": [\"calm\", \"focus\"],\n  \"category\": \"Work\",\n  \"notes\": \"Felt productive after a short walk\"\n}"
+            },
+            "url": "{{baseUrl}}/api/entry"
+          }
+        },
+        {
+          "name": "Get Entries",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/entry"
+          }
+        },
+        {
+          "name": "Create Manual Entry",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{patientId}}\",\n  \"emotion\": 5,\n  \"keywords\": [\"stress\", \"fatigue\"],\n  \"category\": \"Health\",\n  \"notes\": \"Provider observation\"\n}"
+            },
+            "url": "{{baseUrl}}/api/entry/manual"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/users"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"Patient A\",\n  \"email\": \"patient_a@test.com\",\n  \"password\": \"password123\",\n  \"dateOfBirth\": \"2001-05-10\",\n  \"sex\": \"Female\",\n  \"phone\": \"9876543210\",\n  \"address\": {\n    \"street\": \"1 Main Road\",\n    \"city\": \"Chennai\",\n    \"state\": \"Tamil Nadu\",\n    \"zipCode\": \"600001\",\n    \"country\": \"India\"\n  },\n  \"bloodType\": \"O+\",\n  \"allergies\": [\"Dust\"],\n  \"medicalHistory\": [\"Migraine\"],\n  \"mentalHealth\": {\n    \"currentStatus\": \"Stable\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/users/create"
+          }
+        },
+        {
+          "name": "Get User Details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/users/{{patientId}}/details"
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Updated Demo User\",\n  \"email\": \"demo@example.com\",\n  \"phone\": \"9999999999\",\n  \"bio\": \"Updated bio\"\n}"
+            },
+            "url": "{{baseUrl}}/api/users/profile"
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"password123\",\n  \"newPassword\": \"password456\"\n}"
+            },
+            "url": "{{baseUrl}}/api/users/password"
+          }
+        },
+        {
+          "name": "Update Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notifications\": {\n    \"email\": true,\n    \"push\": false\n  },\n  \"appearance\": {\n    \"theme\": \"dark\",\n    \"fontSize\": \"medium\"\n  }\n}"
+            },
+            "url": "{{baseUrl}}/api/users/settings"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notes",
+      "item": [
+        {
+          "name": "Get Notes",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/personal/notes"
+          }
+        },
+        {
+          "name": "Create Note",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Private Reflection\",\n  \"content\": \"Today I felt calmer after walking outside.\",\n  \"category\": \"Reflection\"\n}"
+            },
+            "url": "{{baseUrl}}/api/personal/notes"
+          }
+        },
+        {
+          "name": "Delete Note",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/personal/notes/{{noteId}}"
+          }
+        }
+      ]
+    }
+  ]
+}

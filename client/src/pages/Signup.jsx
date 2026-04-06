@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import useAuthStore from '../store/useAuthStore';
@@ -8,7 +8,8 @@ const Signup = () => {
     const [formData, setFormData] = useState({
         username: '',
         email: '',
-        password: ''
+        password: '',
+        role: 'patient' // Default role
     });
     const navigate = useNavigate();
     const { register, isLoading } = useAuthStore();
@@ -20,7 +21,7 @@ const Signup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await register(formData.username, formData.email, formData.password);
+            await register(formData.username, formData.email, formData.password, formData.role);
             toast.success('Account created successfully!');
             navigate('/');
         } catch (error) {
@@ -90,6 +91,34 @@ const Signup = () => {
                             className="w-full px-4 py-3 bg-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground placeholder:text-muted-foreground transition-all"
                             placeholder="••••••••"
                         />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-foreground mb-3">I am a...</label>
+                        <div className="grid grid-cols-2 gap-4">
+                            <label className={`flex flex-col items-center justify-center p-4 border rounded-xl cursor-pointer transition-all ${formData.role === 'patient' ? 'bg-primary/10 border-primary text-primary' : 'bg-background border-input text-foreground hover:bg-muted'}`}>
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value="patient"
+                                    checked={formData.role === 'patient'}
+                                    onChange={handleChange}
+                                    className="sr-only"
+                                />
+                                <span className="font-medium">Patient</span>
+                            </label>
+                            <label className={`flex flex-col items-center justify-center p-4 border rounded-xl cursor-pointer transition-all ${formData.role === 'psychologist' ? 'bg-primary/10 border-primary text-primary' : 'bg-background border-input text-foreground hover:bg-muted'}`}>
+                                <input
+                                    type="radio"
+                                    name="role"
+                                    value="psychologist"
+                                    checked={formData.role === 'psychologist'}
+                                    onChange={handleChange}
+                                    className="sr-only"
+                                />
+                                <span className="font-medium">Doctor</span>
+                            </label>
+                        </div>
                     </div>
 
                     <button

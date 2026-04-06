@@ -1,0 +1,880 @@
+openapi: 3.0.3
+info:
+  title: MindFlow API
+  version: 1.0.0
+  description: Comprehensive API documentation for the Mental Health Trend Analytics Platform.
+servers:
+  - url: http://localhost:5000
+tags:
+  - name: Health
+  - name: Auth
+  - name: RBAC
+  - name: Analytics
+  - name: Entries
+  - name: Users
+  - name: Notes
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+                databaseState: 1
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Validation failed or user already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid credentials or wrong role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/patient/me:
+    get:
+      tags: [RBAC]
+      summary: Validate patient access
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Patient profile access granted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/RbacUser'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden for the current role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
+  /api/provider/dashboard-analytics:
+    get:
+      tags: [RBAC]
+      summary: Validate provider analytics access
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Provider analytics access granted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      totalPatients:
+                        type: integer
+                      criticalCases:
+                        type: integer
+                      averageMoodScore:
+                        type: number
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden for patient role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
+  /api/analytics/overview:
+    get:
+      tags: [Analytics]
+      summary: Get dashboard analytics overview
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: userId
+          required: false
+          schema:
+            type: string
+          description: Optional target user id for psychologist or admin view
+      responses:
+        '200':
+          description: Analytics returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsOverviewResponse'
+        '401':
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/entry:
+    get:
+      tags: [Entries]
+      summary: Get recent mood entries
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Recent entries returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MoodEntry'
+    post:
+      tags: [Entries]
+      summary: Create a mood entry for the logged-in user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoodEntryRequest'
+      responses:
+        '201':
+          description: Entry created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoodEntry'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/entry/manual:
+    post:
+      tags: [Entries]
+      summary: Create a mood entry for a patient as psychologist or admin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/MoodEntryRequest'
+                - type: object
+                  required: [userId]
+                  properties:
+                    userId:
+                      type: string
+      responses:
+        '201':
+          description: Manual entry created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoodEntry'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden for patient role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
+  /api/users:
+    get:
+      tags: [Users]
+      summary: Get all users for provider dashboard
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User list returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserListItem'
+        '403':
+          description: Forbidden for patient role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
+  /api/users/create:
+    post:
+      tags: [Users]
+      summary: Create a patient profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Patient created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+        '400':
+          description: Validation or duplicate user failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden for patient role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenResponse'
+  /api/users/{id}/details:
+    get:
+      tags: [Users]
+      summary: Get detailed patient information
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Patient detail returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetail'
+        '404':
+          description: Patient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/users/profile:
+    put:
+      tags: [Users]
+      summary: Update the logged-in user profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/users/password:
+    put:
+      tags: [Users]
+      summary: Change the current user password
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid current password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/users/settings:
+    put:
+      tags: [Users]
+      summary: Update current user settings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSettingsRequest'
+      responses:
+        '200':
+          description: Settings updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/personal/notes:
+    get:
+      tags: [Notes]
+      summary: Get private notes for current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Notes returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PersonalNote'
+    post:
+      tags: [Notes]
+      summary: Create a private note
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NoteRequest'
+      responses:
+        '201':
+          description: Note created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalNote'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/personal/notes/{id}:
+    delete:
+      tags: [Notes]
+      summary: Delete a private note by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Note removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Note does not belong to current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Note not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        databaseState:
+          type: integer
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+    ForbiddenResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        alert:
+          type: string
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+        country:
+          type: string
+    Settings:
+      type: object
+      properties:
+        notifications:
+          type: object
+          properties:
+            email:
+              type: boolean
+            push:
+              type: boolean
+            weeklyReports:
+              type: boolean
+            patientAlerts:
+              type: boolean
+            systemUpdates:
+              type: boolean
+        appearance:
+          type: object
+          properties:
+            theme:
+              type: string
+            colorScheme:
+              type: string
+            fontSize:
+              type: string
+    RegisterRequest:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [patient, psychologist, admin]
+    LoginRequest:
+      type: object
+      required: [email, password, role]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [patient, psychologist, admin]
+    AuthResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        bio:
+          type: string
+        profileImage:
+          type: string
+          nullable: true
+        settings:
+          $ref: '#/components/schemas/Settings'
+        role:
+          type: string
+        token:
+          type: string
+    RbacUser:
+      type: object
+      properties:
+        id:
+          type: string
+        role:
+          type: string
+        accessLevel:
+          type: string
+    TrendItem:
+      type: object
+      properties:
+        date:
+          type: string
+        averageMood:
+          type: number
+        topKeywords:
+          type: array
+          items:
+            type: object
+            properties:
+              keyword:
+                type: string
+              count:
+                type: integer
+        totalEntries:
+          type: integer
+    CategoryDistributionItem:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: integer
+    AnalyticsOverviewResponse:
+      type: object
+      properties:
+        trends:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrendItem'
+        categoryDistribution:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryDistributionItem'
+        insights:
+          type: object
+          properties:
+            currentMoodScore:
+              type: string
+            weeklyVariance:
+              type: string
+            predictedTrend:
+              type: string
+    MoodEntryRequest:
+      type: object
+      required: [emotion, category]
+      properties:
+        emotion:
+          type: number
+          minimum: 1
+          maximum: 10
+        keywords:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+          enum: [General, Work, Social, Health, Family, Personal]
+        notes:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    MoodEntry:
+      type: object
+      properties:
+        _id:
+          type: string
+        user:
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                _id:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+        emotion:
+          type: number
+        keywords:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+        notes:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+    CreateUserRequest:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        sex:
+          type: string
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        bloodType:
+          type: string
+        allergies:
+          type: array
+          items:
+            type: string
+        medicalHistory:
+          type: array
+          items:
+            type: string
+        profileImage:
+          type: string
+        mentalHealth:
+          type: object
+    CreateUserResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+        patientId:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        age:
+          type: integer
+          nullable: true
+        sex:
+          type: string
+        profileImage:
+          type: string
+          nullable: true
+        role:
+          type: string
+    UserListItem:
+      allOf:
+        - $ref: '#/components/schemas/CreateUserResponse'
+        - type: object
+          properties:
+            lastCheckIn:
+              type: string
+              format: date-time
+              nullable: true
+            status:
+              type: string
+    UserDetail:
+      type: object
+      properties:
+        _id:
+          type: string
+        patientId:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date-time
+        age:
+          type: integer
+        sex:
+          type: string
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        bloodType:
+          type: string
+        allergies:
+          type: array
+          items:
+            type: string
+        medicalHistory:
+          type: array
+          items:
+            type: string
+        mentalHealth:
+          type: object
+        bio:
+          type: string
+        profileImage:
+          type: string
+          nullable: true
+        settings:
+          $ref: '#/components/schemas/Settings'
+        createdAt:
+          type: string
+          format: date-time
+    UpdateProfileRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        bio:
+          type: string
+        profileImage:
+          type: string
+    UpdateSettingsRequest:
+      type: object
+      properties:
+        notifications:
+          type: object
+        appearance:
+          type: object
+    NoteRequest:
+      type: object
+      required: [title, content]
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+    PersonalNote:
+      type: object
+      properties:
+        _id:
+          type: string
+        user:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+        isDraft:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

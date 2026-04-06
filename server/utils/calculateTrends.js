@@ -9,12 +9,17 @@ const MoodEntry = require('../models/MoodEntry');
  * @returns {Promise<Array>} - Array of daily trend objects.
  */
 async function calculateDailyTrends(startDate, endDate, userId) {
+    const matchStage = {
+        timestamp: { $gte: startDate, $lte: endDate }
+    };
+
+    if (userId) {
+        matchStage.user = new mongoose.Types.ObjectId(userId);
+    }
+
     const pipeline = [
         {
-            $match: {
-                timestamp: { $gte: startDate, $lte: endDate },
-                user: new mongoose.Types.ObjectId(userId)
-            }
+            $match: matchStage
         },
         {
             $group: {
@@ -62,12 +67,17 @@ async function calculateDailyTrends(startDate, endDate, userId) {
  * @param {string} userId 
  */
 async function calculateCategoryDistribution(startDate, endDate, userId) {
+    const matchStage = {
+        timestamp: { $gte: startDate, $lte: endDate }
+    };
+
+    if (userId) {
+        matchStage.user = new mongoose.Types.ObjectId(userId);
+    }
+
     const pipeline = [
         {
-            $match: {
-                timestamp: { $gte: startDate, $lte: endDate },
-                user: new mongoose.Types.ObjectId(userId)
-            }
+            $match: matchStage
         },
         {
             $group: {

@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-const COLORS = ['#8b5cf6', '#ec4899', '#10b981', '#f59e0b']; // Primary, Pink, Emerald, Amber
+const COLORS = ['#3b82f6', '#06b6d4', '#10b981', '#6366f1']; // Blue, Cyan, Emerald, Indigo
 
 const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {

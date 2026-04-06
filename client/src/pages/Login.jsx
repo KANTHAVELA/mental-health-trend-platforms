@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import useAuthStore from '../store/useAuthStore';
@@ -7,13 +7,14 @@ import { Activity } from 'lucide-react';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [role, setRole] = useState('patient');
     const navigate = useNavigate();
     const { login, isLoading } = useAuthStore();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await login(email, password);
+            await login(email, password, role);
             toast.success('Welcome back!');
             navigate('/');
         } catch (error) {
@@ -45,6 +46,23 @@ const Login = () => {
                 <div className="mb-8 text-center">
                     <h2 className="text-2xl font-semibold text-foreground mb-2">Welcome Back</h2>
                     <p className="text-muted-foreground">Sign in to access your dashboard</p>
+                </div>
+
+                <div className="flex mb-6 bg-muted/50 p-1 rounded-xl">
+                    <button
+                        type="button"
+                        onClick={() => setRole('patient')}
+                        className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${role === 'patient' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    >
+                        Patient
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setRole('psychologist')}
+                        className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${role === 'psychologist' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                    >
+                        Doctor
+                    </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -86,9 +104,9 @@ const Login = () => {
                 </form>
 
                 <p className="mt-8 text-center text-sm text-muted-foreground">
-                    Don't have an account?{' '}
+                    Don&apos;t have an account?{' '}
                     <Link to="/signup" className="text-primary font-semibold hover:underline">
-                        Create an account
+                        Sign up
                     </Link>
                 </p>
 

@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -32,8 +32,8 @@ const TrendWave = ({ data }) => {
                 <AreaChart data={data}>
                     <defs>
                         <linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
@@ -55,7 +55,7 @@ const TrendWave = ({ data }) => {
                     <Area
                         type="monotone"
                         dataKey="averageMood"
-                        stroke="#8b5cf6"
+                        stroke="hsl(var(--primary))"
                         strokeWidth={3}
                         fillOpacity={1}
                         fill="url(#colorMood)"

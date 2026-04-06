@@ -1,24 +1,57 @@
-import React from 'react';
+
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Settings, Activity, User } from 'lucide-react';
+import { LayoutDashboard, FileText, Settings, Activity, User, ShieldAlert, ShieldCheck, Gamepad2 } from 'lucide-react';
 import { clsx } from 'clsx';
 import useAuthStore from '../store/useAuthStore';
 
-const SidebarItem = ({ icon: Icon, label, to }) => (
-    <NavLink
-        to={to}
-        className={({ isActive }) => clsx(
-            "flex items-center space-x-3 p-3 rounded-xl cursor-pointer transition-all duration-300",
-            isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-        )}
-    >
-        <Icon size={20} />
-        <span className="font-medium">{label}</span>
-    </NavLink>
-);
+const SidebarItem = ({ icon: Icon, label, to, activeColor = "primary" }) => {
+    const colorClasses = {
+        primary: {
+            active: "bg-primary/10 text-primary",
+            hover: "hover:bg-muted hover:text-foreground"
+        },
+        blue: {
+            active: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+            hover: "hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-700"
+        },
+        red: {
+            active: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+            hover: "hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-700"
+        },
+        indigo: {
+            active: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400",
+            hover: "hover:bg-indigo-50 dark:hover:bg-indigo-900/10 hover:text-indigo-700"
+        },
+        purple: {
+            active: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
+            hover: "hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-700"
+        },
+        emerald: {
+            active: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
+            hover: "hover:bg-emerald-50 dark:hover:bg-emerald-900/10 hover:text-emerald-700"
+        }
+    };
+
+    const colors = colorClasses[activeColor] || colorClasses.primary;
+
+    return (
+        <NavLink
+            to={to}
+            className={({ isActive }) => clsx(
+                "flex items-center space-x-3 p-3 rounded-xl cursor-pointer transition-all duration-300",
+                isActive ? `${colors.active} font-semibold` : `text-muted-foreground ${colors.hover}`
+            )}
+        >
+            <Icon size={20} />
+            <span className="font-medium">{label}</span>
+        </NavLink>
+    );
+};
 
 const Sidebar = () => {
     const user = useAuthStore((state) => state.user);
+
+    const isDoctor = user?.role === 'psychologist' || user?.role === 'admin';
 
     return (
         <div className="w-64 h-screen fixed left-0 top-0 p-6 flex flex-col border-r border-border bg-card/80 backdrop-blur-xl">
@@ -31,10 +64,19 @@ const Sidebar = () => {
             </div>
 
             <nav className="space-y-2 flex-1">
-                <SidebarItem icon={LayoutDashboard} label="Dashboard" to="/" />
-                <SidebarItem icon={User} label="Patients" to="/patients" />
-                <SidebarItem icon={FileText} label="Reports" to="/reports" />
-                <SidebarItem icon={Settings} label="Settings" to="/settings" />
+                <SidebarItem icon={LayoutDashboard} label="Dashboard" to="/" activeColor="primary" />
+                
+                {isDoctor && (
+                    <>
+                        <SidebarItem icon={User} label="Patients" to="/patients" activeColor="blue" />
+                        <SidebarItem icon={FileText} label="Reports" to="/reports" activeColor="purple" />
+                    </>
+                )}
+                
+                <SidebarItem icon={ShieldCheck} label="Personal Space" to="/personal" activeColor="emerald" />
+                <SidebarItem icon={Gamepad2} label="Stress Relief" to="/games" activeColor="blue" />
+                <SidebarItem icon={ShieldAlert} label="Emergency Support" to="/emergency" activeColor="red" />
+                <SidebarItem icon={Settings} label="Settings" to="/settings" activeColor="indigo" />
             </nav>
 
             <div className="mt-auto pt-6 border-t border-border">
@@ -45,7 +87,7 @@ const Sidebar = () => {
                         </div>
                         <div className="flex flex-col">
                             <span className="text-sm font-medium text-foreground">{user?.username || 'User'}</span>
-                            <span className="text-xs text-muted-foreground">Doctor Account</span>
+                            <span className="text-xs text-muted-foreground capitalize">{user?.role || 'Patient'} Account</span>
                         </div>
                     </div>
                     <button

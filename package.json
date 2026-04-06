@@ -9,9 +9,14 @@
     ],
     "scripts": {
         "install:all": "npm install --workspaces",
+        "cleanup": "(for /f \"tokens=5\" %a in ('netstat -aon ^| findstr :5000') do taskkill /F /PID %a 2>nul) & (for /f \"tokens=5\" %a in ('netstat -aon ^| findstr :5173') do taskkill /F /PID %a 2>nul) & (for /f \"tokens=5\" %a in ('netstat -aon ^| findstr :5174') do taskkill /F /PID %a 2>nul) & exit /b 0",
         "dev:client": "npm run dev --workspace=client",
         "dev:server": "npm run dev --workspace=server",
-        "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+        "lint": "npm run lint --workspace=client",
+        "build": "npm run build --workspace=client",
+        "test": "npm run test --workspace=server",
+        "verify": "npm run test && npm run lint && npm run build",
+        "dev": "npm run cleanup & concurrently \"npm run dev:server\" \"npm run dev:client\"",
         "start": "npm run dev"
     },
     "devDependencies": {

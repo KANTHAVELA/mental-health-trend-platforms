@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Search, User, AlertCircle, CheckCircle, Plus } from 'lucide-react';
@@ -141,7 +141,7 @@ const PatientList = () => {
 
                 {filteredPatients.length === 0 && (
                     <div className="text-center py-12 text-muted-foreground">
-                        No patients found matching "{searchTerm}"
+                        No patients found matching &quot;{searchTerm}&quot;
                     </div>
                 )}
             </div>

@@ -4,76 +4,68 @@
 
 @layer base {
   :root {
-    /* Safe Light Theme (Clinical/Professional) */
-    --background: 210 40% 98%;
-    /* Soft White/Blue-ish Gray */
-    --foreground: 222 47% 11%;
-    /* Dark Slate Blue for text */
+    /* Premium Bright & Cool Theme */
+    --background: 210 100% 99%; /* Crisp Cool White */
+    --foreground: 222 47% 15%; /* Deep Cool Slate */
 
-    --card: 0 0% 100%;
-    /* Pure White */
-    --card-foreground: 222 47% 11%;
+    --card: 0 0% 100%; /* Pure White */
+    --card-foreground: 222 47% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 222 47% 15%;
 
-    /* Primary: Trustworthy Blue/Emerald */
-    --primary: 221 83% 53%;
-    /* Blue */
+    /* Primary: Vibrant Cool Azure */
+    --primary: 210 100% 50%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11.2%;
+    --secondary: 210 40% 96%; /* Soft Cool Gray */
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222 47% 11.2%;
+    --accent: 210 100% 96%; /* Very Soft Blue */
+    --accent-foreground: 210 100% 40%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 222 84% 4.9%;
+    --border: 210 40% 92%; /* Light Cool Border */
+    --input: 210 40% 92%;
+    --ring: 210 100% 50%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
   }
 
   .dark {
-    /* Dark Theme */
-    --background: 222 47% 11%;
-    /* Dark Slate */
-    --foreground: 210 40% 98%;
-    /* Light text */
+    /* Convert Dark theme to another Cool Bright variant */
+    --background: 210 100% 98%;
+    --foreground: 222 47% 11%;
 
-    --card: 217 33% 17%;
-    /* Darker card background */
-    --card-foreground: 210 40% 98%;
+    --card: 210 100% 100%;
+    --card-foreground: 222 47% 11%;
 
-    --popover: 217 33% 17%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 210 100% 100%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 221 83% 53%;
-    /* Blue - same as light */
-    --primary-foreground: 210 40% 98%;
+    --primary: 210 100% 50%;
+    --primary-foreground: 210 100% 98%;
 
-    --secondary: 217 33% 20%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 210 40% 94%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 217 33% 20%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 210 40% 94%;
+    --muted-foreground: 215 16% 40%;
 
-    --accent: 217 33% 20%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 210 100% 92%;
+    --accent-foreground: 210 100% 40%;
 
-    --destructive: 0 62.8% 50.6%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217 33% 23%;
-    --input: 217 33% 23%;
-    --ring: 212 100% 47%;
+    --border: 210 40% 88%;
+    --input: 210 40% 88%;
+    --ring: 210 100% 50%;
   }
 }
 

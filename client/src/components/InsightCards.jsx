@@ -1,5 +1,4 @@
-import React from 'react';
-import { TrendingUp, TrendingDown, Activity } from 'lucide-react';
+import { TrendingUp, Activity } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const Card = ({ title, value, subtext, trend }) => {

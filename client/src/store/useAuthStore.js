@@ -1,15 +1,27 @@
 import { create } from 'zustand';
 import axios from 'axios';
 
+// Helper to safely parse user from local storage
+const getUserFromStorage = () => {
+    try {
+        const stored = localStorage.getItem('user');
+        return stored ? JSON.parse(stored) : null;
+    } catch (e) {
+        console.error('Failed to parse user from local storage', e);
+        localStorage.removeItem('user'); // Clean up invalid data
+        return null;
+    }
+};
+
 const useAuthStore = create((set) => ({
-    user: JSON.parse(localStorage.getItem('user')) || null,
+    user: getUserFromStorage(),
     isLoading: false,
     error: null,
 
-    login: async (email, password) => {
+    login: async (email, password, role) => {
         set({ isLoading: true, error: null });
         try {
-            const response = await axios.post('/api/auth/login', { email, password });
+            const response = await axios.post('/api/auth/login', { email, password, role });
             const user = response.data;
             localStorage.setItem('user', JSON.stringify(user));
             // Set default auth header for future requests
@@ -25,10 +37,10 @@ const useAuthStore = create((set) => ({
         }
     },
 
-    register: async (username, email, password) => {
+    register: async (username, email, password, role) => {
         set({ isLoading: true, error: null });
         try {
-            const response = await axios.post('/api/auth/register', { username, email, password });
+            const response = await axios.post('/api/auth/register', { username, email, password, role });
             const user = response.data;
             localStorage.setItem('user', JSON.stringify(user));
             // Set default auth header for future requests
@@ -108,13 +120,18 @@ const useAuthStore = create((set) => ({
         localStorage.removeItem('user');
         delete axios.defaults.headers.common['Authorization'];
         set({ user: null });
+        // Optional: window.location.reload() to clear all state
     },
 }));
 
 // Initialize axios header if user exists on load
-const user = JSON.parse(localStorage.getItem('user'));
-if (user?.token) {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
+try {
+    const user = getUserFromStorage();
+    if (user?.token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
+    }
+} catch (e) {
+    console.error('Error initializing auth headers', e);
 }
 
 export default useAuthStore;

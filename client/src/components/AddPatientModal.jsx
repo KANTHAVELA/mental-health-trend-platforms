@@ -80,6 +80,13 @@ const AddPatientModal = ({ isOpen, onClose, onUserAdded }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // If not on the last step, just go next (happens if user presses Enter)
+        if (currentStep < 3) {
+            handleNext();
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -450,10 +457,20 @@ const AddPatientModal = ({ isOpen, onClose, onUserAdded }) => {
 
                         return (
                             <React.Fragment key={stepNumber}>
-                                <div className="flex flex-col items-center">
+                                <div 
+                                    className="flex flex-col items-center cursor-pointer"
+                                    onClick={() => {
+                                        // Allow jumping back or if validation passes
+                                        if (stepNumber < currentStep || (formData.username && formData.email)) {
+                                            setCurrentStep(stepNumber);
+                                        } else if (stepNumber > currentStep && (!formData.username || !formData.email)) {
+                                            toast.error('Please fill in name and email first');
+                                        }
+                                    }}
+                                >
                                     <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isActive ? 'bg-primary text-primary-foreground' :
                                         isCompleted ? 'bg-primary/20 text-primary' :
-                                            'bg-muted text-muted-foreground'
+                                            'bg-muted text-muted-foreground hover:bg-muted/80'
                                         }`}>
                                         <StepIcon size={20} />
                                     </div>

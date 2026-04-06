@@ -1,71 +1,76 @@
 const express = require('express');
-const router = express.Router();
+
 const MoodEntry = require('../models/MoodEntry');
 const { protect } = require('../middleware/authMiddleware');
+const requireRole = require('../middleware/requireRole');
+const { validateMoodEntryPayload } = require('../utils/validation');
+
+const router = express.Router();
 
 router.post('/', protect, async (req, res) => {
     try {
-        const { emotion, keywords, category } = req.body;
+        const { errors, data } = validateMoodEntryPayload(req.body);
+        if (errors.length > 0) {
+            return res.status(400).json({ message: errors[0], errors });
+        }
 
+        const { emotion, keywords, category, notes, timestamp } = data;
         const newEntry = new MoodEntry({
             user: req.user.id,
             emotion,
             keywords,
-            category
+            category,
+            notes,
+            timestamp,
         });
 
         await newEntry.save();
-        res.status(201).json(newEntry);
+        return res.status(201).json(newEntry);
     } catch (error) {
         console.error('Entry Error:', error);
-        res.status(500).json({ message: 'Server Error' });
+        return res.status(500).json({ message: 'Server Error' });
     }
 });
 
-// GET /api/entry - Get recent entries
 router.get('/', protect, async (req, res) => {
     try {
-        // Fetch ALL entries for the Doctor view, populated with user details
-        const entries = await MoodEntry.find()
+        const query = req.user.role === 'patient' ? { user: req.user.id } : {};
+        const entries = await MoodEntry.find(query)
             .populate('user', 'username email')
             .sort({ timestamp: -1 })
-            .limit(100); // Increased limit for report view
+            .limit(100);
 
-        res.json(entries);
+        return res.json(entries);
     } catch (error) {
         console.error('Fetch Entries Error:', error);
-        res.status(500).json({ message: 'Server Error' });
+        return res.status(500).json({ message: 'Server Error' });
     }
 });
 
-// POST /api/entry/manual - Create manual entry for a patient (Doctor adds entry)
-router.post('/manual', protect, async (req, res) => {
+router.post('/manual', protect, requireRole(['psychologist', 'admin']), async (req, res) => {
     try {
-        const { userId, emotion, keywords, category, notes, timestamp } = req.body;
-
-        // Validate required fields
-        if (!userId || !emotion) {
-            return res.status(400).json({ message: 'userId and emotion are required' });
+        const { errors, data } = validateMoodEntryPayload(req.body, { requireUserId: true });
+        if (errors.length > 0) {
+            return res.status(400).json({ message: errors[0], errors });
         }
 
+        const { userId, emotion, keywords, category, notes, timestamp } = data;
         const newEntry = new MoodEntry({
             user: userId,
             emotion,
-            keywords: keywords || [],
-            category: category || 'General',
-            notes: notes || '',
-            timestamp: timestamp || new Date()
+            keywords,
+            category,
+            notes,
+            timestamp: timestamp || new Date(),
         });
 
         await newEntry.save();
-
-        // Populate user details before sending response
         await newEntry.populate('user', 'username email');
 
-        res.status(201).json(newEntry);
+        return res.status(201).json(newEntry);
     } catch (error) {
         console.error('Manual Entry Error:', error);
-        res.status(500).json({ message: 'Server Error', error: error.message });
+        return res.status(500).json({ message: 'Server Error', error: error.message });
     }
 });
 

@@ -4,6 +4,10 @@ import App from './App.jsx'
 import './index.css'
 import ErrorBoundary from './components/ErrorBoundary';
 import useThemeStore from './store/useThemeStore';
+import axios from 'axios';
+
+// Set global base URL for production REST APIs
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '';
 
 // Initialize theme before rendering
 useThemeStore.getState().initializeTheme();

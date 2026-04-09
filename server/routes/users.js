@@ -13,14 +13,26 @@ router.get('/', protect, requireRole(['psychologist', 'admin']), async (req, res
     try {
         const users = await User.find().select('-password').sort({ createdAt: -1 });
 
-        const enhancedUsers = await Promise.all(users.map(async (user) => {
-            const lastEntry = await MoodEntry.findOne({ user: user._id }).sort({ timestamp: -1 });
+        // Fetch the most recent mood entry for EVERY user in one highly-optimized query
+        const latestEntries = await MoodEntry.aggregate([
+            { $sort: { timestamp: -1 } },
+            { $group: { _id: "$user", lastEntry: { $first: "$$ROOT" } } }
+        ]);
+
+        // Map the results into a fast lookup dictionary
+        const entryMap = {};
+        latestEntries.forEach(entry => {
+            entryMap[entry._id.toString()] = entry.lastEntry;
+        });
+
+        const enhancedUsers = users.map((user) => {
+            const lastEntry = entryMap[user._id.toString()];
             return {
                 ...user.toObject(),
                 lastCheckIn: lastEntry ? lastEntry.timestamp : null,
                 status: lastEntry && lastEntry.emotion < 4 ? 'Risk' : 'Stable',
             };
-        }));
+        });
 
         return res.json(enhancedUsers);
     } catch (error) {

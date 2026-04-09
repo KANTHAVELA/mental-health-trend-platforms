@@ -30,4 +30,6 @@ const moodEntrySchema = new mongoose.Schema({
     }
 });
 
+moodEntrySchema.index({ user: 1, timestamp: -1 });
+
 module.exports = mongoose.model('MoodEntry', moodEntrySchema);

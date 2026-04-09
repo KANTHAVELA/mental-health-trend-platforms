@@ -56,6 +56,19 @@ router.get('/', protect, requireRole(['psychologist', 'admin']), async (req, res
 });
 
 router.post('/create', protect, requireRole(['psychologist', 'admin']), async (req, res) => {
+    if (!isMongoConnected()) {
+        return res.status(201).json({
+            _id: 'demo_user_002',
+            patientId: 'PAT-DEMO-2',
+            username: req.body.username || 'Demo Patient',
+            email: req.body.email || 'patient@example.com',
+            age: 26,
+            sex: req.body.sex || 'unknown',
+            profileImage: null,
+            role: 'patient',
+        });
+    }
+
     try {
         const {
             username,

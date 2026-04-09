@@ -12,16 +12,48 @@ const isMongoConnected = () => mongoose.connection.readyState === 1;
 
 router.get('/', protect, requireRole(['psychologist', 'admin']), async (req, res) => {
     if (!isMongoConnected()) {
-        return res.json([{
-            _id: 'demo_user_001',
-            username: 'Demo Patient',
-            email: 'patient@example.com',
-            age: 26,
-            sex: 'male',
-            role: 'patient',
-            lastCheckIn: new Date(),
-            status: 'Stable'
-        }]);
+        return res.json([
+            {
+                _id: 'demo_user_001',
+                username: 'Arjun Kumar',
+                email: 'arjun@example.com',
+                age: 28,
+                sex: 'male',
+                role: 'patient',
+                lastCheckIn: new Date(Date.now() - 86400000),
+                status: 'Stable'
+            },
+            {
+                _id: 'demo_user_002',
+                username: 'Sarah Chen',
+                email: 'sarah@example.com',
+                age: 32,
+                sex: 'female',
+                role: 'patient',
+                lastCheckIn: new Date(Date.now() - 172800000),
+                status: 'Risk'
+            },
+            {
+                _id: 'demo_user_003',
+                username: 'Michael Smith',
+                email: 'michael@example.com',
+                age: 45,
+                sex: 'male',
+                role: 'patient',
+                lastCheckIn: new Date(),
+                status: 'Improving'
+            },
+            {
+                _id: 'demo_user_004',
+                username: 'Priya Sharma',
+                email: 'priya@example.com',
+                age: 24,
+                sex: 'female',
+                role: 'patient',
+                lastCheckIn: new Date(Date.now() - 432000000),
+                status: 'Stable'
+            }
+        ]);
     }
 
     try {
@@ -147,6 +179,16 @@ router.post('/create', protect, requireRole(['psychologist', 'admin']), async (r
 });
 
 router.get('/:id/details', protect, requireRole(['psychologist', 'admin']), async (req, res) => {
+    if (!isMongoConnected()) {
+        const mockUsers = [
+            { _id: 'demo_user_001', username: 'Arjun Kumar', email: 'arjun@example.com', age: 28, sex: 'male', role: 'patient', mentalHealth: { status: 'Moderate', medications: 'None' } },
+            { _id: 'demo_user_002', username: 'Sarah Chen', email: 'sarah@example.com', age: 32, sex: 'female', role: 'patient', mentalHealth: { status: 'Critical', medications: 'Fluoxetine' } },
+            { _id: 'demo_user_003', username: 'Michael Smith', email: 'michael@example.com', age: 45, sex: 'male', role: 'patient', mentalHealth: { status: 'Good', medications: 'None' } },
+            { _id: 'demo_user_004', username: 'Priya Sharma', email: 'priya@example.com', age: 24, sex: 'female', role: 'patient', mentalHealth: { status: 'Stable', medications: 'None' } }
+        ];
+        const user = mockUsers.find(u => u._id === req.params.id) || mockUsers[0];
+        return res.json(user);
+    }
     try {
         const user = await User.findById(req.params.id).select('-password');
         if (!user) {

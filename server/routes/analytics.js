@@ -10,6 +10,10 @@ router.get('/overview', protect, async (req, res) => {
     if (!isMongoConnected()) {
         return res.json({
             trends: [
+                { date: new Date(Date.now() - 86400000 * 6).toISOString().split('T')[0], averageMood: 4.5, topKeywords: [{keyword: 'tired', count: 1}], totalEntries: 1 },
+                { date: new Date(Date.now() - 86400000 * 5).toISOString().split('T')[0], averageMood: 5.2, topKeywords: [], totalEntries: 1 },
+                { date: new Date(Date.now() - 86400000 * 4).toISOString().split('T')[0], averageMood: 6.8, topKeywords: [{keyword: 'productive', count: 2}], totalEntries: 2 },
+                { date: new Date(Date.now() - 86400000 * 3).toISOString().split('T')[0], averageMood: 7.1, topKeywords: [{keyword: 'sleep', count: 1}], totalEntries: 1 },
                 { date: new Date(Date.now() - 86400000 * 2).toISOString().split('T')[0], averageMood: 6.5, topKeywords: [{keyword: 'sleep', count: 2}], totalEntries: 1 },
                 { date: new Date(Date.now() - 86400000 * 1).toISOString().split('T')[0], averageMood: 7.0, topKeywords: [], totalEntries: 1 },
                 { date: new Date().toISOString().split('T')[0], averageMood: 8.0, topKeywords: [{keyword: 'happy', count: 1}], totalEntries: 1 }
@@ -17,12 +21,14 @@ router.get('/overview', protect, async (req, res) => {
             categoryDistribution: [
                 { name: 'Work', value: 4 },
                 { name: 'Family', value: 2 },
+                { name: 'Social', value: 5 },
+                { name: 'Health', value: 3 },
                 { name: 'General', value: 8 }
             ],
             insights: {
                 currentMoodScore: 7.2,
                 weeklyVariance: 1.5,
-                predictedTrend: 'Stable'
+                predictedTrend: 'Improving'
             }
         });
     }
